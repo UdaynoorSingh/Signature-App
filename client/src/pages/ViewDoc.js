@@ -10,7 +10,7 @@ import 'react-pdf/dist/esm/Page/TextLayer.css';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
-export default function ViewDoc() {
+export default function ViewDoc(){
     const { id } = useParams();
     const navigate = useNavigate();
     const [doc, setDoc] = useState(null);
@@ -22,37 +22,38 @@ export default function ViewDoc() {
 
     console.log('ViewDoc component loaded with id:', id);
 
-    useEffect(() => {
-        const fetchDoc = async () => {
+    useEffect(() =>{
+        const fetchDoc = async () =>{
             setLoading(true);
-            try {
+            try{
                 const token = localStorage.getItem('token');
                 console.log('Fetching document with token:', token ? 'Token exists' : 'No token');
                 const res = await axios.get(`/api/docs/${id}`, { headers: { Authorization: `Bearer ${token}` } });
                 console.log('Document fetched successfully:', res.data);
                 setDoc(res.data);
                 setError('');
-            } catch (err) {
+            } 
+            catch(err){
                 console.error('Failed to fetch document:', err);
                 setError('Failed to load document. It may not exist or you might not have permission.');
-            } finally {
+            } 
+            finally{
                 setLoading(false);
             }
         };
         fetchDoc();
     }, [id]);
 
-    const handleExternalSignatureSuccess = (data) => {
+    const handleExternalSignatureSuccess = (data) =>{
         console.log('External signature request created:', data);
-        // You could show a success message or update the UI
     };
 
-    const handleProceedToSign = () => {
+    const handleProceedToSign = ()=>{
         console.log('Proceed to Sign clicked, navigating to:', `/sign/${id}`);
         navigate(`/sign/${id}`);
     };
 
-    if (loading) {
+    if(loading){
         return (
             <div className="flex justify-center items-center h-screen bg-gray-100 dark:bg-gray-900">
                 <div className="text-center">
@@ -63,7 +64,7 @@ export default function ViewDoc() {
         );
     }
 
-    if (error) {
+    if(error){
         return (
             <div className="flex justify-center items-center h-screen bg-gray-100 dark:bg-gray-900">
                 <div className="text-center p-8 bg-white dark:bg-gray-800 rounded-lg shadow-xl">
@@ -78,7 +79,7 @@ export default function ViewDoc() {
         );
     }
 
-    return (
+    return(
         <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 border-b pb-4 dark:border-gray-700">
@@ -121,7 +122,6 @@ export default function ViewDoc() {
                 </div>
             </div>
 
-            {/* External Signature Modal */}
             <ExternalSignatureModal
                 isOpen={showExternalSignatureModal}
                 onClose={() => setShowExternalSignatureModal(false)}
@@ -130,8 +130,7 @@ export default function ViewDoc() {
                 onSuccess={handleExternalSignatureSuccess}
             />
 
-            {/* Audit Trail Modal */}
-            <AuditTrailModal
+=            <AuditTrailModal
                 isOpen={showAuditTrail}
                 onClose={() => setShowAuditTrail(false)}
                 documentId={id}

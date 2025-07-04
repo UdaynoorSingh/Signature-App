@@ -7,12 +7,11 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Get the server root directory
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const serverRoot = path.resolve(__dirname, '..');
 
 export const register = async (req, res, next) => {
-    try {
+    try{
         const { name, email, password } = req.body;
         const exists = await User.findOne({ email });
         if (exists) return res.status(400).json({ message: 'Email already exists' });
@@ -28,13 +27,14 @@ export const register = async (req, res, next) => {
         await sendEmail(email, 'Verify Your Email', emailHtml);
 
         res.status(201).json({ message: 'Registration successful. Please check your email to verify your account.' });
-    } catch (err) {
+    } 
+    catch(err){
         next(err);
     }
 };
 
 export const verifyEmail = async (req, res, next) => {
-    try {
+    try{
         const { token } = req.query;
         if (!token) return res.status(400).json({ message: 'Verification token is required.' });
 
@@ -46,21 +46,22 @@ export const verifyEmail = async (req, res, next) => {
         await user.save();
 
         res.json({ message: 'Email verification successful! You can now log in.' });
-    } catch (err) {
+    } 
+    catch (err){
         next(err);
     }
 };
 
 export const login = async (req, res, next) => {
-    try {
+    try{
         const { email, password } = req.body;
         const user = await User.findOne({ email });
-        if (!user) return res.status(400).json({ message: 'Invalid credentials' });
+        if(!user) return res.status(400).json({ message: 'Invalid credentials' });
 
         const match = await bcrypt.compare(password, user.password);
-        if (!match) return res.status(400).json({ message: 'Invalid credentials' });
+        if(!match) return res.status(400).json({ message: 'Invalid credentials' });
 
-        if (!user.isVerified) {
+        if(!user.isVerified) {
             return res.status(401).json({ message: 'Please verify your email before logging in.' });
         }
 
@@ -74,12 +75,12 @@ export const login = async (req, res, next) => {
                 profileImage: user.profileImage
             }
         });
-    } catch (err) { next(err); }
+    } 
+    catch(err){ next(err); }
 };
 
 export const validateToken = async (req, res, next) => {
     try {
-        // The auth middleware already validated the token and set req.user
         const user = await User.findById(req.user.id).select('-password');
         if (!user) {
             return res.status(401).json({ message: 'User not found' });
@@ -97,19 +98,17 @@ export const uploadProfileImage = async (req, res, next) => {
         }
 
         const user = await User.findById(req.user.id);
-        if (!user) {
+        if(!user){
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Delete old profile image if it exists
-        if (user.profileImage) {
+        if(user.profileImage){
             const oldImagePath = path.join(serverRoot, 'uploads', 'profiles', user.profileImage);
             if (fs.existsSync(oldImagePath)) {
                 fs.unlinkSync(oldImagePath);
             }
         }
 
-        // Update user with new profile image
         user.profileImage = req.file.filename;
         await user.save();
 
@@ -117,19 +116,21 @@ export const uploadProfileImage = async (req, res, next) => {
             message: 'Profile image updated successfully',
             profileImage: req.file.filename
         });
-    } catch (err) {
+    } 
+    catch(err){
         next(err);
     }
 };
 
 export const getUserProfile = async (req, res, next) => {
-    try {
+    try{
         const user = await User.findById(req.user.id).select('-password');
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
         res.json({ user });
-    } catch (err) {
+    } 
+    catch(err){
         next(err);
     }
 };
@@ -141,15 +142,13 @@ export const removeProfileImage = async (req, res, next) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Delete the profile image file if it exists
-        if (user.profileImage) {
+        if(user.profileImage) {
             const imagePath = path.join(serverRoot, 'uploads', 'profiles', user.profileImage);
             if (fs.existsSync(imagePath)) {
                 fs.unlinkSync(imagePath);
             }
         }
 
-        // Remove the profile image reference from user
         user.profileImage = null;
         await user.save();
 
@@ -157,7 +156,8 @@ export const removeProfileImage = async (req, res, next) => {
             message: 'Profile image removed successfully',
             profileImage: null
         });
-    } catch (err) {
+    } 
+    catch(err){
         next(err);
     }
 };
@@ -167,13 +167,12 @@ export const forgotPassword = async (req, res, next) => {
         const { email } = req.body;
         const user = await User.findOne({ email });
         if (!user) {
-            // Respond with success even if user not found to prevent email enumeration
             return res.status(200).json({ message: 'If a user with that email exists, a password reset link has been sent.' });
         }
 
         const resetToken = crypto.randomBytes(32).toString('hex');
         user.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
-        user.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+        user.passwordResetExpires = Date.now() + 10 * 60 * 1000; 
         await user.save();
 
         const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
@@ -188,8 +187,8 @@ export const forgotPassword = async (req, res, next) => {
 
         res.status(200).json({ message: 'If a user with that email exists, a password reset link has been sent.' });
 
-    } catch (err) {
-        // In case of error, invalidate the token to be safe
+    }
+    catch(err){
         if (req.user) {
             req.user.passwordResetToken = undefined;
             req.user.passwordResetExpires = undefined;
@@ -223,7 +222,6 @@ export const resetPassword = async (req, res, next) => {
         user.passwordResetExpires = undefined;
         await user.save();
 
-        // Optionally, log the user in directly by creating a new session token
         const loginToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
         res.status(200).json({

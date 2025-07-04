@@ -1,8 +1,7 @@
 import nodemailer from 'nodemailer';
 
 const sendEmail = async (to, subject, html) => {
-    // Check if email configuration is available
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    if(!process.env.EMAIL_USER || !process.env.EMAIL_PASS){
         console.log('📧 MOCK EMAIL SENT:');
         console.log('To:', to);
         console.log('Subject:', subject);
@@ -11,12 +10,12 @@ const sendEmail = async (to, subject, html) => {
         return;
     }
 
-    try {
+    try{
         const transporter = nodemailer.createTransport({
-            service: 'gmail', // or your email provider
-            auth: {
+            service: 'gmail', 
+            auth:{
                 user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS, // For Gmail, use an App Password
+                pass: process.env.EMAIL_PASS, 
             },
         });
 
@@ -29,7 +28,8 @@ const sendEmail = async (to, subject, html) => {
 
         await transporter.sendMail(mailOptions);
         console.log(`📧 Email sent successfully to ${to}`);
-    } catch (error) {
+    } 
+    catch(error){
         console.error('❌ Email sending failed:', error);
         throw error;
     }

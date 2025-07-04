@@ -42,12 +42,9 @@ export default function ForgotPassword() {
 
     return (
         <div className="min-h-screen lg:grid lg:grid-cols-2">
-            {/* Left Branding Column */}
             <div className="hidden lg:flex flex-col justify-center items-center bg-blue-800 p-12 text-white relative overflow-hidden">
-                {/* Animated Gradient Background */}
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-700 via-teal-600 to-indigo-800 animate-gradient-xy z-0"></div>
 
-                {/* Abstract Shapes */}
                 <motion.div
                     initial={{ opacity: 0, scale: 1.5, y: 100 }}
                     animate={{ opacity: 1, scale: 1, y: 0, transition: { duration: 0.8, ease: 'easeOut', delay: 0.2 } }}
@@ -70,7 +67,6 @@ export default function ForgotPassword() {
                 </motion.div>
             </div>
 
-            {/* Right Form Column */}
             <div className="flex flex-col justify-center bg-gray-50 py-12 sm:px-6 lg:px-8">
                 <motion.div
                     className="sm:mx-auto sm:w-full sm:max-w-md"

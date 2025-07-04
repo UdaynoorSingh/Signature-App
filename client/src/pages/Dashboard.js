@@ -7,8 +7,8 @@ import RejectionModal from '../components/RejectionModal';
 import AuditTrailModal from '../components/AuditTrailModal';
 
 const containerVariants = {
-    hidden: { opacity: 1 },
-    visible: {
+    hidden: {opacity: 1},
+    visible:{
         opacity: 1,
         transition: {
             staggerChildren: 0.1
@@ -16,7 +16,7 @@ const containerVariants = {
     }
 };
 
-const itemVariants = {
+const itemVariants={
     hidden: { y: 30, opacity: 0 },
     visible: {
         y: 0,
@@ -29,8 +29,8 @@ const itemVariants = {
     }
 };
 
-const emptyStateVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
+const emptyStateVariants={
+    hidden: {opacity: 0, scale: 0.9},
     visible: {
         opacity: 1,
         scale: 1,
@@ -41,7 +41,7 @@ const emptyStateVariants = {
     }
 };
 
-export default function Dashboard() {
+export default function Dashboard(){
     const [docs, setDocs] = useState([]);
     const [isDeleteMode, setIsDeleteMode] = useState(false);
     const [selectedDocs, setSelectedDocs] = useState(new Set());
@@ -49,24 +49,26 @@ export default function Dashboard() {
     const [rejectionModal, setRejectionModal] = useState({ isOpen: false, docId: null });
     const [auditTrailModal, setAuditTrailModal] = useState({ isOpen: false, docId: null });
 
-    useEffect(() => {
+    useEffect(() =>{
         const fetchDocs = async () => {
             setLoading(true);
-            try {
+            try{
                 const token = localStorage.getItem('token');
                 const res = await axios.get('/api/docs/', { headers: { Authorization: `Bearer ${token}` } });
                 setDocs(res.data);
-            } catch (err) {
+            } 
+            catch(err){
                 console.error("Failed to fetch documents", err);
-            } finally {
+            } 
+            finally{
                 setLoading(false);
             }
         };
         fetchDocs();
     }, []);
 
-    const handleDownload = async (doc) => {
-        try {
+    const handleDownload = async (doc)=>{
+        try{
             const fileUrl = `https://signature-app-u9ue.onrender.com${doc.signedPath}`;
             const response = await axios.get(fileUrl, {
                 responseType: 'blob',
@@ -80,19 +82,21 @@ export default function Dashboard() {
             link.click();
             link.parentNode.removeChild(link);
             window.URL.revokeObjectURL(url);
-        } catch (error) {
+        } 
+        catch(error){
             console.error("Download failed:", error);
             alert('Could not download the file.');
         }
     };
 
-    const handleSingleDelete = async (docId) => {
+    const handleSingleDelete = async (docId) =>{
         if (window.confirm('Are you sure you want to delete this document?')) {
             const tempDocs = docs.filter(doc => doc._id !== docId);
             setDocs(tempDocs);
-            try {
+            try{
                 await axios.delete(`/api/docs/${docId}`);
-            } catch (error) {
+            } 
+            catch(error){
                 console.error("Failed to delete document", error);
                 setDocs(docs);
                 alert('Failed to delete document.');
@@ -100,27 +104,29 @@ export default function Dashboard() {
         }
     };
 
-    const handleSelectDoc = (docId) => {
+    const handleSelectDoc = (docId) =>{
         const newSelectedDocs = new Set(selectedDocs);
-        if (newSelectedDocs.has(docId)) {
+        if(newSelectedDocs.has(docId)){
             newSelectedDocs.delete(docId);
-        } else {
+        } 
+        else{
             newSelectedDocs.add(docId);
         }
         setSelectedDocs(newSelectedDocs);
     };
 
     const handleBulkDelete = async () => {
-        if (selectedDocs.size === 0) return;
-        if (window.confirm(`Are you sure you want to delete ${selectedDocs.size} documents?`)) {
+        if(selectedDocs.size === 0) return;
+        if(window.confirm(`Are you sure you want to delete ${selectedDocs.size} documents?`)){
             const originalDocs = [...docs];
             const newDocs = docs.filter(doc => !selectedDocs.has(doc._id));
             setDocs(newDocs);
-            try {
+            try{
                 await axios.delete('/api/docs/', { data: { docIds: Array.from(selectedDocs) } });
                 setIsDeleteMode(false);
                 setSelectedDocs(new Set());
-            } catch (error) {
+            } 
+            catch (error){
                 console.error("Failed to delete documents", error);
                 setDocs(originalDocs);
                 alert('Failed to delete documents.');
@@ -128,7 +134,7 @@ export default function Dashboard() {
         }
     };
 
-    const MotionButton = ({ children, ...props }) => (
+    const MotionButton =({ children, ...props}) =>(
         <motion.button
             whileHover={{ y: -2 }}
             whileTap={{ y: 0, scale: 0.98 }}
@@ -139,22 +145,22 @@ export default function Dashboard() {
         </motion.button>
     );
 
-    const ActionButton = ({ onClick, children, className, disabled }) => (
+    const ActionButton =({ onClick, children, className, disabled }) => (
         <MotionButton onClick={onClick} disabled={disabled} className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors shadow-sm ${className}`}>
             {children}
         </MotionButton>
     );
 
-    const CardButton = ({ to, onClick, children, className = '' }) => {
+    const CardButton = ({to, onClick, children, className = ''}) => {
         const buttonContent = (
             <motion.div className="w-full flex items-center justify-center gap-2" whileTap={{ scale: 0.95 }}>
                 {children}
             </motion.div>
         );
 
-        if (to) {
-            if (isDeleteMode) {
-                return (
+        if(to){
+            if(isDeleteMode){
+                return(
                     <div
                         className={`w-full px-4 py-2 text-sm font-medium rounded-md transition-colors ${className} cursor-not-allowed opacity-60`}
                         onClick={e => e.preventDefault()}
@@ -163,7 +169,7 @@ export default function Dashboard() {
                     </div>
                 );
             }
-            return (
+            return(
                 <Link
                     to={to}
                     className={`w-full px-4 py-2 text-sm font-medium rounded-md transition-colors ${className}`}
@@ -171,8 +177,9 @@ export default function Dashboard() {
                     {buttonContent}
                 </Link>
             );
-        } else {
-            return (
+        } 
+        else{
+            return(
                 <MotionButton
                     onClick={onClick}
                     className={`w-full px-4 py-2 text-sm font-medium rounded-md transition-colors ${className}`}
@@ -183,7 +190,7 @@ export default function Dashboard() {
         }
     };
 
-    return (
+    return(
         <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
             <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                 <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 pb-4 border-b border-gray-200 dark:border-gray-700">

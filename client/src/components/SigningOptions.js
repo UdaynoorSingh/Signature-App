@@ -1,31 +1,33 @@
 import React from 'react';
-import { FaSignature, FaPenNib, FaFileAlt, FaCalendarAlt } from 'react-icons/fa';
+import {FaSignature, FaPenNib, FaFileAlt, FaCalendarAlt} from 'react-icons/fa';
 
-const SigningOptions = ({ onFieldSelect, userSignature, userInitial }) => {
+const SigningOptions = ({onFieldSelect, userSignature, userInitial}) => {
 
-    const handleDragStart = (e, fieldType) => {
+    const handleDragStart = (e, fieldType) =>{
         let data;
-        if (fieldType === 'SIGNATURE') {
-            if (!userSignature) {
+        if(fieldType === 'SIGNATURE'){
+            if(!userSignature){
                 e.preventDefault();
                 alert("Please create a signature first.");
                 return;
             }
             data = userSignature;
-        } else if (fieldType === 'INITIAL') {
-            if (!userInitial) {
+        } 
+        else if(fieldType === 'INITIAL'){
+            if(!userInitial){
                 e.preventDefault();
                 alert("Please create an initial first.");
                 return;
             }
             data = userInitial;
-        } else {
-            data = { type: fieldType, content: fieldType, fontSize: 18 }; // Default font size
+        } 
+        else{
+            data = {type: fieldType, content: fieldType, fontSize: 18 }; 
         }
         e.dataTransfer.setData("application/json", JSON.stringify(data));
     };
 
-    return (
+    return(
         <div className="bg-white p-4 rounded-lg shadow h-full">
             <h2 className="text-lg font-semibold border-b pb-2 mb-4">Signing Options</h2>
 
@@ -62,7 +64,7 @@ const SigningOptions = ({ onFieldSelect, userSignature, userInitial }) => {
                         <p className="font-semibold">Initials</p>
                         {userInitial ? (
                             <p style={{ fontFamily: userInitial.fontStyle, fontSize: `${userInitial.fontSize}px` }}>{userInitial.content}</p>
-                        ) : (
+                        ):(
                             <p className="text-sm text-gray-400">Click to create</p>
                         )}
                     </div>

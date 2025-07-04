@@ -30,38 +30,35 @@ export default function Login() {
         e.preventDefault();
         setError('');
         setLoading(true);
-        try {
+        try{
             const res = await axios.post('/api/auth/login', form);
             localStorage.setItem('token', res.data.token);
 
-            // Fetch user profile data
             await axios.get('/api/auth/profile');
 
-            // Redirect after successful login and profile fetch
             window.location = '/dashboard';
-        } catch (err) {
+        } 
+        catch(err){
             setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
-        } finally {
+        } 
+        finally{
             setLoading(false);
         }
     };
 
     return (
         <div className="min-h-screen lg:grid lg:grid-cols-2">
-            {/* Left Branding Column */}
             <div className="hidden lg:flex flex-col justify-center items-center bg-blue-800 p-12 text-white relative overflow-hidden">
-                {/* Animated Gradient Background */}
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-700 via-teal-600 to-indigo-800 animate-gradient-xy z-0"></div>
 
-                {/* Abstract Shapes */}
                 <motion.div
-                    initial={{ opacity: 0, scale: 1.5, y: 100 }}
-                    animate={{ opacity: 1, scale: 1, y: 0, transition: { duration: 0.8, ease: 'easeOut', delay: 0.2 } }}
+                    initial={{opacity: 0, scale: 1.5, y:100}}
+                    animate={{ opacity: 1, scale: 1, y: 0, transition: {duration: 0.8, ease: 'easeOut', delay: 0.2}}}
                     className="absolute -top-20 -left-40 w-96 h-96 bg-white/10 rounded-full filter blur-2xl"
                 ></motion.div>
                 <motion.div
-                    initial={{ opacity: 0, scale: 1.5, y: -100 }}
-                    animate={{ opacity: 1, scale: 1, y: 0, transition: { duration: 0.8, ease: 'easeOut', delay: 0.4 } }}
+                    initial={{opacity: 0, scale: 1.5, y: -100}}
+                    animate={{opacity: 1, scale: 1, y: 0, transition: {duration: 0.8, ease: 'easeOut', delay: 0.4} }}
                     className="absolute -bottom-24 -right-20 w-80 h-80 bg-white/10 rounded-full filter blur-2xl"
                 ></motion.div>
 
@@ -76,7 +73,6 @@ export default function Login() {
                 </motion.div>
             </div>
 
-            {/* Right Form Column */}
             <div className="flex flex-col justify-center bg-gray-50 dark:bg-gray-900 py-12 sm:px-6 lg:px-8">
                 <motion.div
                     className="sm:mx-auto sm:w-full sm:max-w-md"

@@ -6,7 +6,6 @@ import SignatureModal from '../components/SignatureModal';
 import RejectionModal from '../components/RejectionModal';
 import { FaCheck, FaTimes } from 'react-icons/fa';
 
-// Set up PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const ExternalSign = () => {
@@ -22,34 +21,39 @@ const ExternalSign = () => {
     const [showRejectionModal, setShowRejectionModal] = useState(false);
     const [signaturePosition, setSignaturePosition] = useState({ x: 0, y: 0, page: 1 });
     const [submitting, setSubmitting] = useState(false);
-    const [pageState, setPageState] = useState('initial'); // 'initial', 'signing', or 'rejected'
+    const [pageState, setPageState] = useState('initial'); 
     const [placedFields, setPlacedFields] = useState([]);
 
-    useEffect(() => {
+    useEffect(() =>{
         fetchDocumentData();
     }, [token]);
 
     const fetchDocumentData = async () => {
-        try {
+        try{
             const response = await axios.get(`/api/external-signatures/document/${token}`);
             setDocumentData(response.data.document);
             setSignerInfo(response.data.signerInfo);
-        } catch (error) {
-            if (error.response?.status === 404) {
+        } 
+        catch(error){
+            if(error.response?.status === 404){
                 setError('Invalid or expired signature link');
-            } else if (error.response?.status === 410) {
+            } 
+            else if(error.response?.status === 410){
                 setError('This signature link has expired');
-            } else if (error.response?.status === 409) {
+            } 
+            else if(error.response?.status === 409){
                 setError('This document has already been signed or rejected.');
-            } else {
+            } 
+            else{
                 setError('Failed to load document');
             }
-        } finally {
+        } 
+        finally{
             setLoading(false);
         }
     };
 
-    const onDocumentLoadSuccess = ({ numPages }) => {
+    const onDocumentLoadSuccess = ({numPages}) => {
         setNumPages(numPages);
     };
 
@@ -75,17 +79,17 @@ const ExternalSign = () => {
         ]);
     };
 
-    const handleRemoveField = (id) => {
+    const handleRemoveField = (id) =>{
         setPlacedFields(prev => prev.filter(f => f.id !== id));
     };
 
-    const handleFinalize = async () => {
-        if (placedFields.length === 0) {
+    const handleFinalize = async () =>{
+        if(placedFields.length === 0){
             alert('Please place at least one signature field.');
             return;
         }
         setSubmitting(true);
-        try {
+        try{
             await axios.post(`/api/external-signatures/sign/${token}`, {
                 signatures: placedFields.map(f => ({
                     content: f.content,
@@ -100,18 +104,20 @@ const ExternalSign = () => {
             });
             alert('Document signed successfully!');
             navigate('/');
-        } catch (error) {
+        } 
+        catch(error){
             setError('Failed to submit signature. Please try again.');
-        } finally {
+        } 
+        finally{
             setSubmitting(false);
         }
     };
 
-    const handleRejectionSuccess = () => {
+    const handleRejectionSuccess = ()=>{
         setPageState('rejected');
     };
 
-    if (loading) {
+    if(loading){
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="text-center">
@@ -122,7 +128,7 @@ const ExternalSign = () => {
         );
     }
 
-    if (pageState === 'rejected') {
+    if(pageState === 'rejected'){
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="text-center max-w-md mx-4 p-8 bg-white rounded-lg shadow-lg">
@@ -140,7 +146,7 @@ const ExternalSign = () => {
         );
     }
 
-    if (error) {
+    if(error){
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="text-center max-w-md mx-4">
@@ -161,7 +167,6 @@ const ExternalSign = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            {/* Header */}
             <div className="bg-white shadow-sm border-b">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center py-4">
@@ -190,12 +195,10 @@ const ExternalSign = () => {
                 </div>
             </div>
 
-            {/* Document Viewer (conditionally rendered) */}
             {pageState === 'signing' && (
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                     <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-                        {/* Page Navigation */}
-                        {numPages > 1 && (
+                        {numPages>1 && (
                             <div className="bg-gray-50 px-6 py-3 border-b">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center space-x-4">
@@ -221,13 +224,11 @@ const ExternalSign = () => {
                             </div>
                         )}
 
-                        {/* PDF Document */}
                         <div className="flex justify-center p-6">
                             <div
                                 className="border border-gray-300 cursor-crosshair relative"
                                 onClick={handlePageClick}
-                                style={{ width: 600 }}
-                            >
+                                style={{ width: 600 }}>
                                 <Document
                                     file={`https://signature-app-u9ue.onrender.com/uploads/${documentData?.filename}`}
                                     onLoadSuccess={onDocumentLoadSuccess}
@@ -235,8 +236,7 @@ const ExternalSign = () => {
                                         <div className="flex items-center justify-center h-96">
                                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                                         </div>
-                                    }
-                                >
+                                    } >
                                     <Page
                                         pageNumber={currentPage}
                                         width={600}
@@ -244,8 +244,7 @@ const ExternalSign = () => {
                                         renderAnnotationLayer={false}
                                     />
                                 </Document>
-                                {/* Render placed fields */}
-                                {placedFields.filter(f => f.page === currentPage).map(field => (
+                                {placedFields.filter(f => f.page === currentPage).map(field =>(
                                     <div
                                         key={field.id}
                                         className="absolute z-10 cursor-pointer bg-blue-600 text-white rounded-full px-2 py-1 text-xs flex items-center"
@@ -279,8 +278,7 @@ const ExternalSign = () => {
                 </div>
             )}
 
-            {/* Signature Modal */}
-            {showSignatureModal && (
+            {showSignatureModal &&(
                 <SignatureModal
                     isOpen={showSignatureModal}
                     onClose={() => setShowSignatureModal(false)}
@@ -289,7 +287,6 @@ const ExternalSign = () => {
                 />
             )}
 
-            {/* Rejection Modal */}
             <RejectionModal
                 isOpen={showRejectionModal}
                 onClose={() => setShowRejectionModal(false)}
@@ -297,8 +294,7 @@ const ExternalSign = () => {
                 token={token}
             />
 
-            {/* Loading Overlay */}
-            {submitting && (
+            {submitting&&(
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg p-6 text-center">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>

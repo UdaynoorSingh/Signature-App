@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import axios from '../utils/axios';
-import { HiMail, HiClock, HiCheck, HiX, HiRefresh, HiInformationCircle } from 'react-icons/hi';
+import {HiMail, HiClock, HiCheck, HiX, HiRefresh, HiInformationCircle} from 'react-icons/hi';
 
 const ExternalSignatureRequests = () => {
     const [requests, setRequests] = useState([]);
@@ -8,33 +8,33 @@ const ExternalSignatureRequests = () => {
     const [error, setError] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
 
-    useEffect(() => {
+    useEffect(()=>{
         fetchRequests();
     }, []);
 
-    const fetchRequests = async () => {
+    const fetchRequests = async ()=>{
         setLoading(true);
-        try {
+        try{
             const response = await axios.get('/api/external-signatures/requests');
             setRequests(response.data);
-        } catch (error) {
+        }catch (error) {
             setError('Failed to load signature requests');
-        } finally {
+        }finally {
             setLoading(false);
         }
     };
 
-    const handleResendEmail = async (requestId) => {
+    const handleResendEmail = async (requestId)=>{
         try {
             await axios.post(`/api/external-signatures/resend/${requestId}`);
             alert('Email sent successfully!');
-            fetchRequests(); // Refresh the list
+            fetchRequests(); 
         } catch (error) {
             alert('Failed to resend email');
         }
     };
 
-    const getStatusIcon = (status) => {
+    const getStatusIcon =(status)=>{
         switch (status) {
             case 'pending':
                 return <HiClock className="text-yellow-500" />;
@@ -89,15 +89,15 @@ const ExternalSignatureRequests = () => {
         { key: 'expired', label: 'Expired' },
     ];
 
-    if (loading) {
-        return (
+    if(loading){
+        return(
             <div className="flex justify-center items-center min-h-[60vh]">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             </div>
         );
     }
 
-    return (
+    return(
         <div className="max-w-6xl mx-auto mt-10 p-4 md:p-6">
             <div className="bg-white rounded-xl shadow-lg">
                 <div className="px-4 md:px-6 py-4 border-b border-gray-200">
@@ -113,7 +113,6 @@ const ExternalSignatureRequests = () => {
                     </div>
                 </div>
 
-                {/* Filter Controls */}
                 <div className="px-4 md:px-6 py-3 border-b border-gray-200">
                     <div className="flex flex-wrap items-center gap-2">
                         <span className="text-sm font-medium text-gray-600 mr-2">Filter by status:</span>
@@ -138,11 +137,9 @@ const ExternalSignatureRequests = () => {
                     </div>
                 )}
 
-                {/* Content Area */}
                 <div className="overflow-x-auto">
                     {filteredRequests.length > 0 ? (
                         <>
-                            {/* Desktop Table */}
                             <table className="min-w-full divide-y divide-gray-200 hidden md:table">
                                 <thead className="bg-gray-50">
                                     <tr>
@@ -233,7 +230,6 @@ const ExternalSignatureRequests = () => {
                                     ))}
                                 </tbody>
                             </table>
-                            {/* Mobile Cards */}
                             <div className="md:hidden p-4 space-y-4">
                                 {filteredRequests.map(request => (
                                     <div key={request._id} className="bg-gray-50 rounded-lg p-4 border border-gray-200 shadow-sm">

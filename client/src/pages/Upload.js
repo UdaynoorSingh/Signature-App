@@ -9,19 +9,20 @@ export default function Upload() {
     const handleSubmit = async e => {
         e.preventDefault();
         setError('');
-        if (!file) {
+        if(!file){
             setError('Please select a PDF file.');
             return;
         }
         const formData = new FormData();
         formData.append('file', file);
         const token = localStorage.getItem('token');
-        try {
+        try{
             await axios.post('/api/docs/upload', formData, {
                 headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' }
             });
             window.location = '/';
-        } catch (err) {
+        } 
+        catch(err){
             setError('Upload failed. Please try again.');
         }
     };

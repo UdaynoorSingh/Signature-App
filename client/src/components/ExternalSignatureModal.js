@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import axios from '../utils/axios';
-import { Document, Page, pdfjs } from 'react-pdf';
+import {Document, Page, pdfjs} from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
-const ExternalSignatureModal = ({ isOpen, onClose, documentId, documentName, documentPath, onSuccess }) => {
+const ExternalSignatureModal = ({isOpen, onClose, documentId, documentName, documentPath, onSuccess}) => {
     const [formData, setFormData] = useState({
         signerEmail: '',
         signerName: ''
@@ -15,21 +15,21 @@ const ExternalSignatureModal = ({ isOpen, onClose, documentId, documentName, doc
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
-    const handleInputChange = (e) => {
+    const handleInputChange = (e) =>{
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
         });
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e) =>{
         e.preventDefault();
         setLoading(true);
         setError('');
         setSuccess('');
 
-        try {
-            const response = await axios.post('/api/external-signatures/create', {
+        try{
+            const response = await axios.post('/api/external-signatures/create',{
                 documentId,
                 signerEmail: formData.signerEmail,
                 signerName: formData.signerName,
@@ -38,25 +38,27 @@ const ExternalSignatureModal = ({ isOpen, onClose, documentId, documentName, doc
             setSuccess('Signature request sent successfully!');
             setFormData({ signerEmail: '', signerName: '' });
 
-            if (onSuccess) {
+            if(onSuccess){
                 onSuccess(response.data);
             }
 
-            setTimeout(() => {
+            setTimeout(() =>{
                 onClose();
                 setSuccess('');
             }, 2000);
 
-        } catch (error) {
+        } 
+        catch (error){
             setError(error.response?.data?.message || 'Failed to send signature request');
-        } finally {
+        } 
+        finally{
             setLoading(false);
         }
     };
 
-    if (!isOpen) return null;
+    if(!isOpen) return null;
 
-    return (
+    return(
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 w-full max-w-2xl mx-4">
                 <div className="flex justify-between items-center mb-4">
@@ -109,13 +111,13 @@ const ExternalSignatureModal = ({ isOpen, onClose, documentId, documentName, doc
                         />
                     </div>
 
-                    {error && (
+                    {error&&(
                         <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
                             {error}
                         </div>
                     )}
 
-                    {success && (
+                    {success &&(
                         <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
                             {success}
                         </div>

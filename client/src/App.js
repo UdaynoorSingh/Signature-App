@@ -18,7 +18,7 @@ import ExternalSignatureRequests from './pages/ExternalSignatureRequests';
 import PublicRoute from './components/PublicRoute';
 import ProtectedRoute from './components/ProtectedRoute';
 
-function App() {
+function App(){
     return (
         <ThemeProvider>
             <UserProvider>

@@ -14,31 +14,27 @@ const fontkit = (await import('fontkit')).default || (await import('fontkit'));
 const dancingScriptRegularBytes = fs.readFileSync(path.join(__dirname, '../fonts/DancingScript-Regular.ttf'));
 const dancingScriptBoldBytes = fs.readFileSync(path.join(__dirname, '../fonts/DancingScript-Bold.ttf'));
 
-// Generate tokenized URL and send email to signer
 export const createExternalSignatureRequest = async (req, res) => {
     try {
         const { documentId, signerEmail, signerName, fields } = req.body;
         const requesterId = req.user.id;
 
-        // Check if document exists and belongs to user
         const document = await Document.findOne({ _id: documentId, user: requesterId });
         if (!document) {
             return res.status(404).json({ message: 'Document not found' });
         }
 
-        // Check if external signature request already exists
         let externalSignature = await ExternalSignature.findOne({
             documentId,
             signerEmail,
             status: { $in: ['pending', 'sent'] }
         });
 
-        if (externalSignature) {
-            // Generate new token if request exists
+        if(externalSignature){
             externalSignature.generateNewToken();
-            if (fields) externalSignature.fields = fields;
-        } else {
-            // Create new external signature request
+            if(fields) externalSignature.fields = fields;
+        } 
+        else{
             externalSignature = new ExternalSignature({
                 documentId,
                 requesterId,
@@ -50,11 +46,9 @@ export const createExternalSignatureRequest = async (req, res) => {
 
         await externalSignature.save();
 
-        // Generate the tokenized URL
         const baseUrl = process.env.CLIENT_URL || 'http://localhost:3000';
         const tokenizedUrl = `${baseUrl}/external-sign/${externalSignature.token}`;
 
-        // Send email to signer
         const requester = await User.findById(requesterId);
         const emailSubject = `Signature Request from ${requester.name} via Docu-Signer`;
         const emailBody = `
@@ -92,13 +86,13 @@ export const createExternalSignatureRequest = async (req, res) => {
             </div>
         `;
 
-        try {
+        try{
             await sendEmail(signerEmail, emailSubject, emailBody);
             externalSignature.status = 'sent';
             await externalSignature.save();
-        } catch (emailError) {
+        } 
+        catch (emailError){
             console.error('Email sending failed:', emailError);
-            // Don't fail the request if email fails, just log it
         }
 
         res.status(201).json({
@@ -113,32 +107,32 @@ export const createExternalSignatureRequest = async (req, res) => {
             }
         });
 
-    } catch (error) {
+    } 
+    catch(error){
         console.error('Error creating external signature request:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 };
 
-// Get document for external signing using token
 export const getExternalSigningDocument = async (req, res) => {
-    try {
-        const { token } = req.params;
+    try{
+        const {token} = req.params;
 
         const externalSignature = await ExternalSignature.findOne({ token })
             .populate('documentId')
             .populate('requesterId', 'name email');
 
-        if (!externalSignature) {
+        if(!externalSignature){
             return res.status(404).json({ message: 'Invalid or expired signature link' });
         }
 
-        if (externalSignature.isExpired()) {
+        if(externalSignature.isExpired()){
             externalSignature.status = 'expired';
             await externalSignature.save();
             return res.status(410).json({ message: 'Signature link has expired' });
         }
 
-        if (externalSignature.status === 'signed') {
+        if(externalSignature.status === 'signed'){
             return res.status(409).json({ message: 'Document has already been signed' });
         }
 
@@ -153,17 +147,17 @@ export const getExternalSigningDocument = async (req, res) => {
             expiresAt: externalSignature.expiresAt
         });
 
-    } catch (error) {
+    }
+    catch(error){
         console.error('Error getting external signing document:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 };
 
-// Submit external signature
 export const submitExternalSignature = async (req, res) => {
-    try {
+    try{
         const { token } = req.params;
-        const { signatures } = req.body; // Expect an array of signature objects
+        const { signatures } = req.body;
 
         if (!signatures || !Array.isArray(signatures) || signatures.length === 0) {
             return res.status(400).json({ message: 'Signatures are required.' });
@@ -177,21 +171,20 @@ export const submitExternalSignature = async (req, res) => {
         }
 
         const doc = externalSignature.documentId;
-        if (!doc) {
+        if(!doc) {
             return res.status(404).json({ message: 'Original document not found.' });
         }
 
-        if (externalSignature.isExpired()) {
+        if(externalSignature.isExpired()){
             externalSignature.status = 'expired';
             await externalSignature.save();
             return res.status(410).json({ message: 'Signature link has expired' });
         }
 
-        if (externalSignature.status === 'signed') {
+        if(externalSignature.status === 'signed'){
             return res.status(409).json({ message: 'Document has already been signed' });
         }
 
-        // --- PDF Modification Logic ---
         const pdfPath = doc.path;
         const pdfBytes = fs.readFileSync(pdfPath);
         const pdfDoc = await PDFDocument.load(pdfBytes);
@@ -225,10 +218,9 @@ export const submitExternalSignature = async (req, res) => {
         }
 
         for (const signature of signatures) {
-            // Use the data from the signature object directly
             const page = pdfDoc.getPage(signature.page - 1);
             const { height: pageHeight } = page.getSize();
-            const y = pageHeight - signature.y; // Invert Y-coordinate
+            const y = pageHeight - signature.y; 
             const fontSize = signature.fontSize || 18;
             const color = signature.color ? rgb(signature.color.r, signature.color.g, signature.color.b) : rgb(0, 0, 0);
             const selectedFont = getFont(signature.fontStyle);
@@ -242,12 +234,12 @@ export const submitExternalSignature = async (req, res) => {
                 const char = String.fromCodePoint(...glyph.codePoints);
                 page.drawText(char, {
                     x: currentX + (position.xOffset * fontScale),
-                    y: y - (position.yOffset * fontScale),
+                    y: y - (position.yOffset*fontScale),
                     font: selectedFont,
                     size: fontSize,
                     color,
                 });
-                currentX += position.xAdvance * fontScale;
+                currentX += position.xAdvance*fontScale;
             }
         }
 
@@ -256,16 +248,13 @@ export const submitExternalSignature = async (req, res) => {
         const signedPath = path.join(path.dirname(pdfPath), signedFilename);
         fs.writeFileSync(signedPath, signedPdfBytes);
 
-        // --- Update Database Records ---
         externalSignature.signedAt = new Date();
         externalSignature.status = 'signed';
         await externalSignature.save();
 
-        // 2. Update the master Document record with the path to the new signed PDF
         doc.signedPath = signedPath;
         await doc.save();
 
-        // 3. Create an audit trail entry for the external signature
         await Audit.create({
             documentId: doc._id,
             action: `Signed by external user (${externalSignature.signerEmail})`,
@@ -277,28 +266,29 @@ export const submitExternalSignature = async (req, res) => {
             signedAt: externalSignature.signedAt
         });
 
-    } catch (error) {
+    } 
+    catch(error) {
         console.error('Error submitting external signature:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 };
 
 export const rejectSignature = async (req, res) => {
-    try {
+    try{
         const { token } = req.params;
         const { reason } = req.body;
 
-        if (!reason) {
+        if(!reason){
             return res.status(400).json({ message: 'A reason for rejection is required.' });
         }
 
         const externalSignature = await ExternalSignature.findOne({ token });
 
-        if (!externalSignature) {
+        if(!externalSignature){
             return res.status(404).json({ message: 'Invalid or expired signature link' });
         }
 
-        if (externalSignature.status === 'signed' || externalSignature.status === 'rejected') {
+        if(externalSignature.status === 'signed' || externalSignature.status === 'rejected') {
             return res.status(409).json({ message: `Document has already been ${externalSignature.status}.` });
         }
 
@@ -306,38 +296,34 @@ export const rejectSignature = async (req, res) => {
         externalSignature.rejectionReason = reason;
         await externalSignature.save();
 
-        // Optionally, notify the requester via email about the rejection
-        // (Implementation for email notification can be added here)
-
         res.json({ message: 'You have successfully declined to sign.' });
 
-    } catch (error) {
+    } 
+    catch(error){
         console.error('Error rejecting signature:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 };
 
-// Get all external signature requests for a user
 export const getExternalSignatureRequests = async (req, res) => {
-    try {
+    try{
         const userId = req.user.id;
 
         const externalSignatures = await ExternalSignature.find({ requesterId: userId })
             .populate('documentId', 'originalname uploadedAt')
             .sort({ createdAt: -1 });
 
-        // Filter out requests where document no longer exists
         const validRequests = externalSignatures.filter(request => request.documentId !== null);
 
         res.json(validRequests);
 
-    } catch (error) {
+    } 
+    catch(error){
         console.error('Error getting external signature requests:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 };
 
-// Resend external signature email
 export const resendExternalSignatureEmail = async (req, res) => {
     try {
         const { externalSignatureId } = req.params;
@@ -352,20 +338,16 @@ export const resendExternalSignatureEmail = async (req, res) => {
             return res.status(404).json({ message: 'External signature request not found' });
         }
 
-        // Check if document exists
         if (!externalSignature.documentId) {
             return res.status(404).json({ message: 'Document not found' });
         }
 
-        // Generate new token and extend expiration
         externalSignature.generateNewToken();
         await externalSignature.save();
 
-        // Generate the new tokenized URL
         const baseUrl = process.env.CLIENT_URL || 'http://localhost:3000';
         const tokenizedUrl = `${baseUrl}/external-sign/${externalSignature.token}`;
 
-        // Send email to signer
         const emailSubject = `Document Signature Request - ${externalSignature.documentId.originalname}`;
         const emailBody = `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -394,11 +376,12 @@ export const resendExternalSignatureEmail = async (req, res) => {
             </div>
         `;
 
-        try {
+        try{
             await sendEmail(externalSignature.signerEmail, emailSubject, emailBody);
             externalSignature.status = 'sent';
             await externalSignature.save();
-        } catch (emailError) {
+        } 
+        catch (emailError){
             console.error('Email sending failed:', emailError);
             return res.status(500).json({ message: 'Failed to send email' });
         }
@@ -409,7 +392,8 @@ export const resendExternalSignatureEmail = async (req, res) => {
             expiresAt: externalSignature.expiresAt
         });
 
-    } catch (error) {
+    } 
+    catch(error){
         console.error('Error resending external signature email:', error);
         res.status(500).json({ message: 'Internal server error' });
     }

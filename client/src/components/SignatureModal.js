@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React,{useState, useEffect} from 'react';
 
-const SignatureModal = ({ isOpen, onClose, onApply, purpose = 'SIGNATURE' }) => {
+const SignatureModal = ({isOpen, onClose, onApply, purpose = 'SIGNATURE'}) => {
     const [fullName, setFullName] = useState('');
     const [initials, setInitials] = useState('');
     const [activeTab, setActiveTab] = useState(purpose);
@@ -8,11 +8,9 @@ const SignatureModal = ({ isOpen, onClose, onApply, purpose = 'SIGNATURE' }) => 
     const [color, setColor] = useState({ r: 0, g: 0, b: 0 });
 
     useEffect(() => {
-        // When the modal opens, set the active tab based on the purpose
         setActiveTab(purpose);
     }, [isOpen, purpose]);
 
-    // Correctly map font styles to their CSS font-family names
     const signatureStyles = [
         { id: 'style1', name: 'Signature', fontFamily: "'Dancing Script', cursive" },
         { id: 'style2', name: 'Signature', fontFamily: "'Pacifico', cursive" },
@@ -21,21 +19,20 @@ const SignatureModal = ({ isOpen, onClose, onApply, purpose = 'SIGNATURE' }) => 
     ];
     const [selectedStyle, setSelectedStyle] = useState(signatureStyles[0].id);
 
-    if (!isOpen) return null;
+    if(!isOpen) return null;
 
-    const handleApply = () => {
-        // Use the purpose prop to determine the type
+    const handleApply = ()=>{
         const content = purpose === 'SIGNATURE' ? fullName : initials;
         const type = purpose;
         const style = signatureStyles.find(s => s.id === selectedStyle);
 
-        if (content) {
+        if(content){
             onApply({ type, content, fontStyle: style.fontFamily, fontSize, color });
             onClose();
         }
     };
 
-    return (
+    return(
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div className="bg-white rounded-lg shadow-2xl w-full max-w-2xl">
                 <div className="p-6 border-b">
@@ -105,13 +102,13 @@ const SignatureModal = ({ isOpen, onClose, onApply, purpose = 'SIGNATURE' }) => 
                         <label className="font-semibold text-gray-700 mb-2 block">Signature Color</label>
                         <input
                             type="color"
-                            value={`#${((1 << 24) + (color.r * 255 << 16) + (color.g * 255 << 8) + (color.b * 255)).toString(16).slice(1)}`}
-                            onChange={e => {
+                            value={`#${((1<<24) + (color.r*255<<16) + (color.g*255<<8) + (color.b*255)).toString(16).slice(1)}`}
+                            onChange={e =>{
                                 const hex = e.target.value;
                                 setColor({
-                                    r: parseInt(hex.slice(1, 3), 16) / 255,
-                                    g: parseInt(hex.slice(3, 5), 16) / 255,
-                                    b: parseInt(hex.slice(5, 7), 16) / 255
+                                    r: parseInt(hex.slice(1,3),16)/255,
+                                    g: parseInt(hex.slice(3,5),16)/255,
+                                    b: parseInt(hex.slice(5,7),16)/255
                                 });
                             }}
                             className="w-12 h-8 border rounded"

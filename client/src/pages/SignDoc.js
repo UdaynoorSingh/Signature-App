@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Document, Page, pdfjs } from 'react-pdf';
+import {useParams, useNavigate} from 'react-router-dom';
+import {Document, Page, pdfjs} from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
-import { v4 as uuidv4 } from 'uuid';
+import {v4 as uuidv4 } from 'uuid';
 import axios from '../utils/axios';
 
 import SignatureModal from '../components/SignatureModal';
@@ -28,7 +28,6 @@ const SignDoc = () => {
     const [placedFields, setPlacedFields] = useState([]);
     const [editingField, setEditingField] = useState({ id: null, content: '' });
 
-    // For resizing fields
     const [resizingField, setResizingField] = useState(null);
 
     const pdfWrapperRef = useRef(null);
@@ -40,7 +39,7 @@ const SignDoc = () => {
         setLoading(true);
         console.log('Fetching document details for id:', id);
         axios.get(`/api/docs/${id}`)
-            .then(res => {
+            .then(res =>{
                 console.log('Document details fetched successfully:', res.data);
                 setDocDetails(res.data);
                 setError('');
@@ -54,7 +53,7 @@ const SignDoc = () => {
             });
     }, [id]);
 
-    const handleResizeStart = (e, field) => {
+    const handleResizeStart = (e, field)=>{
         e.preventDefault();
         e.stopPropagation();
         setResizingField({
@@ -64,22 +63,22 @@ const SignDoc = () => {
         });
     };
 
-    useEffect(() => {
-        const handleResize = (e) => {
+    useEffect(() =>{
+        const handleResize = (e) =>{
             if (!resizingField) return;
             const dx = e.clientX - resizingField.initialX;
-            const newFontSize = Math.max(8, resizingField.initialFontSize + dx * 0.1); // Scale factor
+            const newFontSize = Math.max(8, resizingField.initialFontSize + dx*0.1); 
 
             setPlacedFields(prev => prev.map(f =>
                 f.id === resizingField.id ? { ...f, fontSize: newFontSize } : f
             ));
         };
 
-        const handleResizeEnd = () => {
+        const handleResizeEnd = () =>{
             setResizingField(null);
         };
 
-        if (resizingField) {
+        if(resizingField) {
             window.addEventListener('mousemove', handleResize);
             window.addEventListener('mouseup', handleResizeEnd);
         }
@@ -97,13 +96,13 @@ const SignDoc = () => {
         if (type === 'SIGNATURE' || type === 'INITIAL') {
             setModalPurpose(type);
             setIsModalOpen(true);
-        } else {
-            // For fields like DATE or TEXT that don't need a modal
+        } 
+        else{
             const newField = {
                 id: uuidv4(),
                 type,
-                page: 1, // Default to first page
-                x: 50,  // Default position
+                page: 1, 
+                x: 50,  
                 y: 50,
                 content: type === 'DATE' ? new Date().toLocaleDateString() : 'Text',
                 fontSize: 18,
@@ -134,14 +133,14 @@ const SignDoc = () => {
         const x = e.clientX - pageRect.left - (fieldData.offsetX || 0);
         const y = e.clientY - pageRect.top - (fieldData.offsetY || 0);
 
-        if (fieldData.isRepositioning) {
+        if(fieldData.isRepositioning){
             setPlacedFields(prev => prev.map(f =>
                 f.id === fieldData.id ? { ...f, x, y, page: pageNum } : f
             ));
             return;
         }
 
-        const newField = { id: uuidv4(), page: pageNum, x, y, ...fieldData };
+        const newField = {id: uuidv4(), page: pageNum, x, y, ...fieldData};
 
         if (newField.type === 'DATE') newField.content = new Date().toLocaleDateString();
         if (newField.type === 'TEXT') newField.content = 'Text';
@@ -149,31 +148,33 @@ const SignDoc = () => {
 
         setPlacedFields(prev => [...prev, newField]);
 
-        if (newField.type === 'TEXT') {
+        if(newField.type === 'TEXT'){
             setEditingField({ id: newField.id, content: newField.content });
         }
     };
 
-    const handlePlacedFieldDragStart = (e, field) => {
+    const handlePlacedFieldDragStart = (e, field) =>{
         if (editingField.id === field.id || resizingField) return;
         const rect = e.target.getBoundingClientRect();
         const offsetX = e.clientX - rect.left;
         const offsetY = e.clientY - rect.top;
-        const data = { ...field, isRepositioning: true, offsetX, offsetY };
+        const data = {...field, isRepositioning: true, offsetX, offsetY};
         e.dataTransfer.setData("application/json", JSON.stringify(data));
     };
 
-    const handleFinalize = async () => {
-        if (placedFields.length === 0) return alert("Please place at least one field.");
+    const handleFinalize = async ()=>{
+        if(placedFields.length === 0) return alert("Please place at least one field.");
         setIsSigning(true);
-        try {
+        try{
             await axios.post('/api/signatures/finalize', { documentId: id, fields: placedFields });
             alert('Document signed successfully!');
             navigate('/dashboard');
-        } catch (error) {
+        }
+        catch(error){
             console.error("Failed to sign document", error);
             alert('Failed to sign document.');
-        } finally {
+        } 
+        finally{
             setIsSigning(false);
         }
     };
@@ -195,7 +196,7 @@ const SignDoc = () => {
         setEditingField({ id: null, content: '' });
     };
 
-    if (loading) {
+    if(loading){
         return (
             <div className="flex justify-center items-center h-screen bg-gray-100 dark:bg-gray-900">
                 <div className="text-center">
@@ -206,7 +207,7 @@ const SignDoc = () => {
         );
     }
 
-    if (error) {
+    if(error){
         return (
             <div className="flex justify-center items-center h-screen bg-gray-100 dark:bg-gray-900">
                 <div className="text-center p-8 bg-white dark:bg-gray-800 rounded-lg shadow-xl">

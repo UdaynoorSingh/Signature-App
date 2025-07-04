@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, {createContext, useState, useEffect, useContext} from 'react';
 import axios from '../utils/axios';
 
 const UserContext = createContext();
@@ -9,16 +9,17 @@ export const UserProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchUser = async () => {
+    useEffect(() =>{
+        const fetchUser = async () =>{
             const token = localStorage.getItem('token');
-            if (token) {
-                try {
+            if(token){
+                try{
                     const res = await axios.get('/api/auth/profile');
                     setUser(res.data.user);
-                } catch (error) {
+                } 
+                catch(error){
                     console.error('Failed to fetch user profile', error);
-                    localStorage.removeItem('token'); // Invalid token
+                    localStorage.removeItem('token'); 
                     setUser(null);
                 }
             }

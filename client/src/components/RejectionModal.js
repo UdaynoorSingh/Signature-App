@@ -1,32 +1,34 @@
 import React, { useState } from 'react';
 import axios from '../utils/axios';
 
-const RejectionModal = ({ isOpen, onClose, onSubmit, token }) => {
+const RejectionModal =({isOpen, onClose, onSubmit, token}) =>{
     const [reason, setReason] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
 
-    const handleSubmit = async () => {
-        if (!reason.trim()) {
+    const handleSubmit = async () =>{
+        if(!reason.trim()){
             setError('Please provide a reason for declining.');
             return;
         }
         setSubmitting(true);
         setError('');
-        try {
+        try{
             await axios.post(`/api/external-signatures/reject/${token}`, { reason });
-            onSubmit(); // Notify parent of success
-        } catch (err) {
+            onSubmit(); 
+        } 
+        catch(err){
             setError('Failed to submit rejection. Please try again.');
             console.error(err);
-        } finally {
+        } 
+        finally{
             setSubmitting(false);
         }
     };
 
-    if (!isOpen) return null;
+    if(!isOpen) return null;
 
-    return (
+    return(
         <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 p-4">
             <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
                 <div className="p-6 border-b">

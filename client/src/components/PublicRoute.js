@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
+import React, {useState, useEffect} from 'react';
+import {Navigate} from 'react-router-dom';
 import axios from '../utils/axios';
 
-export default function PublicRoute({ children }) {
+export default function PublicRoute({ children }){
     const [isValid, setIsValid] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
+    useEffect(() =>{
         const validateToken = async () => {
             const token = localStorage.getItem('token');
 
@@ -16,12 +16,11 @@ export default function PublicRoute({ children }) {
                 return;
             }
 
-            try {
-                // Try to fetch user data to validate token
+            try{
                 await axios.get('/api/docs/');
                 setIsValid(true);
-            } catch (error) {
-                // If 401 or any error, token is invalid
+            } 
+            catch (error){
                 localStorage.removeItem('token');
                 setIsValid(false);
             }
@@ -31,11 +30,11 @@ export default function PublicRoute({ children }) {
         validateToken();
     }, []);
 
-    if (loading) {
+    if(loading){
         return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
     }
 
-    if (isValid) {
+    if(isValid){
         return <Navigate to="/dashboard" replace />;
     }
 

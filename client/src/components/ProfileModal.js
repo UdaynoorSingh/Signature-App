@@ -1,22 +1,22 @@
-import React, { useState, useRef } from 'react';
-import { HiCamera, HiX, HiUser } from 'react-icons/hi';
+import React, {useState, useRef} from 'react';
+import {HiCamera, HiX, HiUser} from 'react-icons/hi';
 import axios from '../utils/axios';
 
-export default function ProfileModal({ isOpen, onClose, onImageUpdate, currentImage }) {
+export default function ProfileModal({isOpen, onClose, onImageUpdate, currentImage}){
     const [selectedFile, setSelectedFile] = useState(null);
     const [preview, setPreview] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const fileInputRef = useRef(null);
 
-    const handleFileSelect = (e) => {
+    const handleFileSelect = (e)=>{
         const file = e.target.files[0];
-        if (file) {
-            if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        if(file){
+            if(file.size > 5*1024*1024){ // 5MB limit
                 setError('File size must be less than 5MB');
                 return;
             }
-            if (!file.type.startsWith('image/')) {
+            if(!file.type.startsWith('image/')){
                 setError('Please select an image file');
                 return;
             }
@@ -24,14 +24,13 @@ export default function ProfileModal({ isOpen, onClose, onImageUpdate, currentIm
             setSelectedFile(file);
             setError('');
 
-            // Create preview
             const reader = new FileReader();
             reader.onload = () => setPreview(reader.result);
             reader.readAsDataURL(file);
         }
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e)=>{
         e.preventDefault();
         if (!selectedFile) return;
 
@@ -41,38 +40,42 @@ export default function ProfileModal({ isOpen, onClose, onImageUpdate, currentIm
         const formData = new FormData();
         formData.append('profileImage', selectedFile);
 
-        try {
-            const response = await axios.post('/api/auth/profile/image', formData, {
-                headers: {
+        try{
+            const response = await axios.post('/api/auth/profile/image', formData,{
+                headers:{
                     'Content-Type': 'multipart/form-data',
                 },
             });
 
             onImageUpdate(response.data.profileImage);
             onClose();
-        } catch (err) {
+        } 
+        catch(err){
             setError(err.response?.data?.message || 'Failed to upload image');
-        } finally {
+        } 
+        finally{
             setLoading(false);
         }
     };
 
-    const handleRemoveImage = async () => {
+    const handleRemoveImage = async ()=>{
         setLoading(true);
-        try {
+        try{
             await axios.delete('/api/auth/profile/image');
             onImageUpdate(null);
             onClose();
-        } catch (err) {
+        } 
+        catch(err){
             setError(err.response?.data?.message || 'Failed to remove image');
-        } finally {
+        } 
+        finally{
             setLoading(false);
         }
     };
 
-    if (!isOpen) return null;
+    if(!isOpen) return null;
 
-    return (
+    return(
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
                 <div className="flex justify-between items-center mb-4">

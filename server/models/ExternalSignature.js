@@ -26,29 +26,26 @@ const externalSignatureSchema = new mongoose.Schema({
         width: { type: Number },
         fontSize: { type: Number },
         fontStyle: { type: String },
-        content: { type: String }, // For text/date fields, pre-filled by requester
+        content: { type: String }, 
     }],
     expiresAt: {
         type: Date,
         required: true,
-        default: () => new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+        default: () => new Date(Date.now() + 7*24*60*60*1000) // 7 days
     },
     signedAt: { type: Date },
 }, { timestamps: true });
 
-// Index for token lookup
 externalSignatureSchema.index({ token: 1 });
 externalSignatureSchema.index({ expiresAt: 1 });
 
-// Method to check if token is expired
 externalSignatureSchema.methods.isExpired = function () {
-    return new Date() > this.expiresAt;
+    return new Date()>this.expiresAt;
 };
 
-// Method to generate new token
 externalSignatureSchema.methods.generateNewToken = function () {
     this.token = crypto.randomBytes(32).toString('hex');
-    this.expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    this.expiresAt = new Date(Date.now() + 7*24*60*60*1000);
     this.status = 'pending';
     return this;
 };

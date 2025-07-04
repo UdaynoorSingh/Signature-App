@@ -24,20 +24,16 @@ const allowedOrigins = [
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json());
 
-// Make the 'uploads' directory publicly accessible with CORS
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 app.use('/uploads', cors({ origin: allowedOrigins, credentials: true }), express.static(path.join(__dirname, 'uploads')));
 
-// Serve profile images
 app.use('/uploads/profiles', express.static(path.join(__dirname, 'uploads', 'profiles')));
 
-// Ensure the 'uploads' directory exists
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir);
 }
 
-// Ensure the 'uploads/profiles' directory exists
 const profilesDir = path.join(__dirname, 'uploads', 'profiles');
 if (!fs.existsSync(profilesDir)) {
     fs.mkdirSync(profilesDir, { recursive: true });

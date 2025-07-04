@@ -1,42 +1,40 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { HiDocumentText, HiUpload, HiLogout, HiPlus, HiOutlineMail, HiOutlineViewGrid, HiOutlineSun, HiOutlineMoon, HiOutlineCollection, HiOutlineExternalLink } from 'react-icons/hi';
+import React, {useState} from 'react';
+import {Link, useNavigate} from 'react-router-dom';
+import {HiDocumentText, HiUpload, HiLogout, HiPlus, HiOutlineMail, HiOutlineViewGrid, HiOutlineSun, HiOutlineMoon, HiOutlineCollection, HiOutlineExternalLink} from 'react-icons/hi';
 import axios from '../utils/axios';
 import ProfileModal from './ProfileModal';
-import { motion } from 'framer-motion';
-import { useUser } from '../context/UserContext';
-import { useTheme } from '../context/ThemeContext';
+import {motion} from 'framer-motion';
+import {useUser} from '../context/UserContext';
+import {useTheme} from '../context/ThemeContext';
 
-export default function Navbar() {
-    const { user, setUser, loading } = useUser();
-    const { theme, toggleTheme } = useTheme();
+export default function Navbar(){
+    const {user, setUser, loading} = useUser();
+    const {theme, toggleTheme} = useTheme();
     const [showProfileModal, setShowProfileModal] = useState(false);
     const navigate = useNavigate();
 
-    const handleLogout = () => {
+    const handleLogout = ()=>{
         localStorage.removeItem('token');
         setUser(null);
         navigate('/login');
     };
 
-    const handleProfileImageUpdate = (newImage) => {
-        setUser(prev => ({ ...prev, profileImage: newImage }));
+    const handleProfileImageUpdate = (newImage)=>{
+        setUser(prev => ({...prev, profileImage: newImage}));
     };
 
-    return (
+    return(
         <>
             <nav className="bg-white shadow-md relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-700 via-teal-600 to-indigo-800 animate-gradient-xy"></div>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
                     <div className="flex items-center justify-between h-20">
-                        {/* LEFT SIDE: Logo & User Profile */}
                         <div className="flex items-center space-x-4">
                             <Link to="/dashboard" className="flex items-center space-x-2">
                                 <HiDocumentText className="h-8 w-8 text-white" />
                                 <span className="text-xl font-bold text-white">Docu-Signer</span>
                             </Link>
 
-                            {/* User Profile Section */}
                             {!loading && user && (
                                 <div className="flex items-center space-x-3 border-l border-white/20 pl-4">
                                     <button
@@ -67,7 +65,6 @@ export default function Navbar() {
                             )}
                         </div>
 
-                        {/* RIGHT SIDE: Navigation Links & Actions */}
                         <div className="flex items-center space-x-5">
                             <motion.button
                                 onClick={toggleTheme}
@@ -131,7 +128,7 @@ export default function Navbar() {
 
             <ProfileModal
                 isOpen={showProfileModal}
-                onClose={() => setShowProfileModal(false)}
+                onClose={() =>setShowProfileModal(false)}
                 onImageUpdate={handleProfileImageUpdate}
                 currentImage={user?.profileImage}
             />

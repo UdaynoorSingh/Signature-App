@@ -23,9 +23,8 @@ export const finalizeAndEmbedSignatures = async (req, res, next) => {
         const doc = await Document.findById(documentId);
         if (!doc) return res.status(404).json({ message: 'Document not found' });
 
-        // Prepare signature metadata for the database, removing the client-side `id`
         const signatureDocs = fields.map(field => {
-            const { id, ...rest } = field; // Exclude the 'id' field
+            const { id, ...rest } = field; 
             return {
                 ...rest,
                 documentId,
@@ -34,8 +33,6 @@ export const finalizeAndEmbedSignatures = async (req, res, next) => {
         });
         await Signature.insertMany(signatureDocs);
 
-        // Embed the signatures into the physical PDF file
-        // Use absolute path for reading the original PDF
         const absoluteDocPath = path.isAbsolute(doc.path)
             ? doc.path
             : path.join(__dirname, '..', doc.path.replace(/^[\\/]+/, ''));
@@ -43,7 +40,6 @@ export const finalizeAndEmbedSignatures = async (req, res, next) => {
         const pdfDoc = await PDFDocument.load(pdfBytes);
         pdfDoc.registerFontkit(fontkit);
 
-        // --- Load all fonts ---
         const fontBytes = {
             DancingScriptRegular: fs.readFileSync(path.join(__dirname, '../fonts/DancingScript-Regular.ttf')),
             DancingScriptBold: fs.readFileSync(path.join(__dirname, '../fonts/DancingScript-Bold.ttf')),
@@ -75,7 +71,6 @@ export const finalizeAndEmbedSignatures = async (req, res, next) => {
             const page = pdfDoc.getPage(field.page - 1);
             const { height } = page.getSize();
 
-            // pdf-lib's y-coordinate starts from the bottom, so we need to invert it.
             const invertedY = height - field.y;
 
             let color = rgb(0, 0, 0);
@@ -108,7 +103,6 @@ export const finalizeAndEmbedSignatures = async (req, res, next) => {
             }
         }
 
-        // Log this significant action to the audit trail
         await Audit.create({
             documentId,
             userId: req.user.id,
@@ -116,9 +110,8 @@ export const finalizeAndEmbedSignatures = async (req, res, next) => {
             ip: req.clientIp,
         });
 
-        // Save the newly signed PDF to a new file
         const signedPdfBytes = await pdfDoc.save();
-        const normalizedDocPath = doc.path.replace(/\\/g, '/'); // normalize to POSIX slashes
+        const normalizedDocPath = doc.path.replace(/\\/g, '/'); 
         const parsed = path.parse(normalizedDocPath);
         const signedFilename = parsed.name + '-signed' + parsed.ext;
         const signedPath = path.join(parsed.dir, signedFilename);
@@ -127,7 +120,6 @@ export const finalizeAndEmbedSignatures = async (req, res, next) => {
             : path.join(__dirname, '..', signedPath.replace(/^[\\/]+/, ''));
         fs.writeFileSync(absoluteSignedPath, signedPdfBytes);
 
-        // Update the document record with the path to the new signed version
         doc.signedPath = signedPath;
         await doc.save();
 

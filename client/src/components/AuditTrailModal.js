@@ -1,35 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import axios from '../utils/axios';
-import { FaTimes, FaShieldAlt, FaUser, FaClock, FaMapMarkerAlt } from 'react-icons/fa';
+import {FaTimes, FaShieldAlt, FaUser, FaClock, FaMapMarkerAlt} from 'react-icons/fa';
 
-const AuditTrailModal = ({ isOpen, onClose, documentId }) => {
+const AuditTrailModal = ({isOpen, onClose, documentId})=>{
     const [trail, setTrail] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    useEffect(() => {
-        if (isOpen && documentId) {
+    useEffect(()=>{
+        if (isOpen && documentId){
             setLoading(true);
             setError('');
             axios.get(`/api/audit/${documentId}`)
-                .then(res => {
+                .then(res =>{
                     setTrail(res.data);
                 })
-                .catch(err => {
+                .catch(err =>{
                     setError('Failed to load audit trail.');
                     console.error(err);
                 })
-                .finally(() => {
+                .finally(() =>{
                     setLoading(false);
                 });
         }
     }, [isOpen, documentId]);
 
-    if (!isOpen) return null;
+    if(!isOpen) return null;
 
-    const formatTimestamp = (ts) => new Date(ts).toLocaleString();
+    const formatTimestamp=(ts)=>new Date(ts).toLocaleString();
 
-    return (
+    return(
         <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl">
                 <header className="flex items-center justify-between p-4 border-b bg-gray-50 rounded-t-xl">
