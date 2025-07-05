@@ -27,6 +27,32 @@ A full-featured document signature application built with the MERN stack (MongoD
 4. Signer clicks the link and can sign the document without registration
 5. Link expires after 7 days for security
 
+
+   
+## Screenshots
+
+### Login Page
+![Screenshot 2025-07-04 165741](https://github.com/user-attachments/assets/053d74c2-d340-4196-a494-073a48e18b45)
+
+
+### Register Page
+![Screenshot 2025-07-04 165759](https://github.com/user-attachments/assets/799805e2-bfe4-4df0-a27e-26e1f191eed8)
+
+
+### Dashboard
+![Screenshot 2025-07-04 165632](https://github.com/user-attachments/assets/5f0b763d-ee49-4646-a05a-190d44676c99)
+
+
+### Document Page
+![Screenshot 2025-07-04 165958](https://github.com/user-attachments/assets/8277e381-b6da-4e16-b900-3ec1fa392e6a)
+
+
+### Sign Page
+![Screenshot 2025-07-04 170116](https://github.com/user-attachments/assets/b8a63b33-0f9b-442d-b1be-08bdf13b1cc4)
+
+
+
+
 ## Setup
 
 ### Prerequisites
